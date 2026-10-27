@@ -9,6 +9,13 @@
     --color-nude: #F5EFEB;
   }
 
+  html,
+  body,
+  * {
+    cursor: none !important;
+    user-select: none !important;
+  }
+
   body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background-color: #FAF7F5;

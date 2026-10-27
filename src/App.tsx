@@ -14,6 +14,7 @@ import { AboutAndContactPage } from './pages/AboutAndContactPage.tsx';
 import { Service, SalonSettings } from './types/index.ts';
 import { MessageCircle } from 'lucide-react';
 import { PixelBug } from './components/PixelBug.tsx';
+import { CrazyCursor } from './components/CrazyCursor.tsx';
 
 function MainApp() {
   const { user } = useAuth();
@@ -197,6 +198,7 @@ function MainApp() {
       <Footer settings={settings} setCurrentTab={setCurrentTab} />
 
       <PixelBug />
+      <CrazyCursor />
     </div>
   );
 }
