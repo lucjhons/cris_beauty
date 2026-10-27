@@ -118,7 +118,7 @@ export const Home: React.FC<HomeProps> = ({
           
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-rose-200 text-xs sm:text-sm font-medium uppercase tracking-widest mb-6 animate-pulse">
             <Sparkles className="w-4 h-4 text-amber-300" />
-            Experiência VIP em Beleza & Estética
+            Sua experiência ruim em beleza e aqui
           </div>
 
           <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-tight mb-6">
