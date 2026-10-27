@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { Appointment } from '../types/index.ts';
+import { ActionConfirmationModal } from '../components/ActionConfirmationModal.tsx';
 
 interface ClientDashboardProps {
   setCurrentTab: (tab: string) => void;
@@ -45,8 +46,42 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ setCurrentTab,
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // Cancellation modal/state
-  const [cancelingId, setCancelingId] = useState<number | null>(null);
+  // Cancellation protection modal state
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelingAppointmentId, setCancelingAppointmentId] = useState<number | null>(null);
+  const [cancelLoading, setCancelLoading] = useState(false);
+
+  // Prompt confirmation modal before cancelling
+  const requestCancelAppointment = (id: number) => {
+    setCancelingAppointmentId(id);
+    setCancelModalOpen(true);
+  };
+
+  // Execute cancellation after confirmation
+  const handleConfirmCancelAppointment = async () => {
+    if (!token || !cancelingAppointmentId) return;
+    setCancelLoading(true);
+    try {
+      const res = await fetch(`/api/appointments/${cancelingAppointmentId}/cancel`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        setCancelModalOpen(false);
+        setCancelingAppointmentId(null);
+        await fetchAppointments();
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Erro ao cancelar agendamento.');
+      }
+    } catch (err) {
+      console.error('Cancel error:', err);
+    } finally {
+      setCancelLoading(false);
+    }
+  };
 
   // Load client's own appointments
   const fetchAppointments = async () => {
@@ -72,28 +107,6 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ setCurrentTab,
   useEffect(() => {
     fetchAppointments();
   }, [token]);
-
-  // Handle appointment cancellation
-  const handleCancelAppointment = async (id: number) => {
-    if (!token) return;
-    try {
-      const res = await fetch(`/api/appointments/${id}/cancel`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (res.ok) {
-        setCancelingId(null);
-        await fetchAppointments();
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Erro ao cancelar agendamento.');
-      }
-    } catch (err) {
-      console.error('Cancel error:', err);
-    }
-  };
 
   // Handle Profile Update
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -289,7 +302,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ setCurrentTab,
                   </div>
 
                   <button
-                    onClick={() => handleCancelAppointment(nextAppointment.id)}
+                    onClick={() => requestCancelAppointment(nextAppointment.id)}
                     className="text-xs font-semibold text-rose-600 hover:text-rose-800 underline flex items-center gap-1"
                   >
                     <XCircle className="w-3.5 h-3.5" />
@@ -398,7 +411,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ setCurrentTab,
                             <td className="py-3.5 px-4 text-right whitespace-nowrap">
                               {apt.status !== 'cancelado' && apt.status !== 'concluido' ? (
                                 <button
-                                  onClick={() => handleCancelAppointment(apt.id)}
+                                  onClick={() => requestCancelAppointment(apt.id)}
                                   className="text-rose-600 hover:text-rose-800 text-[11px] font-semibold underline"
                                 >
                                   Cancelar
@@ -614,6 +627,22 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ setCurrentTab,
             </form>
           </div>
         )}
+
+        {/* Protected Action Confirmation Modal */}
+        <ActionConfirmationModal
+          isOpen={cancelModalOpen}
+          isDestructive={true}
+          isLoading={cancelLoading}
+          title="Confirmar Cancelamento"
+          description="Você tem certeza que deseja cancelar este agendamento? O horário será liberado na agenda e esta ação não poderá ser desfeita."
+          confirmLabel="Sim, Cancelar Agendamento"
+          cancelLabel="Manter Agendamento"
+          onConfirm={handleConfirmCancelAppointment}
+          onCancel={() => {
+            setCancelModalOpen(false);
+            setCancelingAppointmentId(null);
+          }}
+        />
 
       </div>
     </div>

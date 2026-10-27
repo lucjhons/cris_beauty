@@ -31,6 +31,7 @@ import {
   TopServiceMetric,
   SalonSettings,
 } from '../types/index.ts';
+import { ActionConfirmationModal } from '../components/ActionConfirmationModal.tsx';
 
 interface AdminDashboardProps {
   setCurrentTab: (tab: string) => void;
@@ -77,6 +78,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   // 6. Settings form
   const [settingsForm, setSettingsForm] = useState<SalonSettings>(salonSettings);
+
+  // 7. Action Protection Modal State
+  const [actionProtection, setActionProtection] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    confirmLabel: string;
+    isDestructive: boolean;
+    onConfirm: () => Promise<void> | void;
+  } | null>(null);
 
   // Check if current user is admin
   if (!user || user.role !== 'admin') {
@@ -198,8 +209,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     fetchAuditLogs();
   }, [token]);
 
-  // Update Appointment Status / Payment Status
-  const handleUpdateAppointmentStatus = async (id: number, newStatus?: string, newPayment?: string) => {
+  // Internal execution of status update
+  const executeUpdateAppointmentStatus = async (id: number, newStatus?: string, newPayment?: string) => {
     if (!token) return;
     setActionLoading(true);
     try {
@@ -228,6 +239,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     } finally {
       setActionLoading(false);
     }
+  };
+
+  // Protected wrapper for appointment status change
+  const handleUpdateAppointmentStatus = async (id: number, newStatus?: string, newPayment?: string) => {
+    // If setting to 'cancelado', require explicit confirmation
+    if (newStatus === 'cancelado') {
+      setActionProtection({
+        isOpen: true,
+        title: 'Cancelar Agendamento',
+        description: 'Tem certeza que deseja cancelar este agendamento? Esta ação será registrada no log de auditoria e liberará o horário na agenda.',
+        confirmLabel: 'Sim, Cancelar Atendimento',
+        isDestructive: true,
+        onConfirm: async () => {
+          await executeUpdateAppointmentStatus(id, newStatus, newPayment);
+          setActionProtection(null);
+        },
+      });
+      return;
+    }
+
+    await executeUpdateAppointmentStatus(id, newStatus, newPayment);
   };
 
   // Save Service (Create or Update)
@@ -266,8 +298,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
-  // Toggle Client Active status
-  const handleToggleClientActive = async (clientId: number, currentActive: boolean) => {
+  // Internal execution of client status toggle
+  const executeToggleClientActive = async (clientId: number, currentActive: boolean) => {
     if (!token) return;
     try {
       const res = await fetch(`/api/admin/clients/${clientId}`, {
@@ -280,10 +312,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       });
       if (res.ok) {
         await fetchClients();
+        setMessage({
+          type: 'success',
+          text: `Cliente ${!currentActive ? 'ativado' : 'desativado'} com sucesso!`,
+        });
       }
     } catch (e) {
       console.error(e);
     }
+  };
+
+  // Protected toggle for client activation
+  const handleToggleClientActive = async (clientId: number, currentActive: boolean) => {
+    if (currentActive) {
+      setActionProtection({
+        isOpen: true,
+        title: 'Desativar Conta de Cliente',
+        description: 'Você tem certeza que deseja desativar esta conta de cliente? O usuário não conseguirá acessar sua área ou fazer novos agendamentos.',
+        confirmLabel: 'Sim, Desativar Conta',
+        isDestructive: true,
+        onConfirm: async () => {
+          await executeToggleClientActive(clientId, currentActive);
+          setActionProtection(null);
+        },
+      });
+      return;
+    }
+
+    await executeToggleClientActive(clientId, currentActive);
   };
 
   // Save Settings
@@ -1070,6 +1126,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </table>
             </div>
           </div>
+        )}
+
+        {/* Action Protection Modal */}
+        {actionProtection && (
+          <ActionConfirmationModal
+            isOpen={actionProtection.isOpen}
+            title={actionProtection.title}
+            description={actionProtection.description}
+            confirmLabel={actionProtection.confirmLabel}
+            isDestructive={actionProtection.isDestructive}
+            isLoading={actionLoading}
+            onConfirm={actionProtection.onConfirm}
+            onCancel={() => setActionProtection(null)}
+          />
         )}
 
       </div>

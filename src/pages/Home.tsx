@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Calendar,
   Sparkles,
@@ -13,6 +13,14 @@ import {
   Heart,
   ChevronRight,
   MessageCircle,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  UserPlus,
+  LogIn,
+  X,
+  Maximize2,
 } from 'lucide-react';
 import { Service, SalonSettings } from '../types/index.ts';
 
@@ -31,6 +39,31 @@ export const Home: React.FC<HomeProps> = ({
 }) => {
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+
+  // Dedicated Presentation Section Video Controls
+  const presentationVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+
+  const togglePlayPresentation = () => {
+    if (presentationVideoRef.current) {
+      if (presentationVideoRef.current.paused) {
+        presentationVideoRef.current.play();
+        setIsPlaying(true);
+      } else {
+        presentationVideoRef.current.pause();
+        setIsPlaying(false);
+      }
+    }
+  };
+
+  const toggleMutePresentation = () => {
+    if (presentationVideoRef.current) {
+      presentationVideoRef.current.muted = !presentationVideoRef.current.muted;
+      setIsMuted(presentationVideoRef.current.muted);
+    }
+  };
 
   const featuredServices = services.slice(0, 6);
 
@@ -74,8 +107,8 @@ export const Home: React.FC<HomeProps> = ({
   return (
     <div className="min-h-screen">
       
-      {/* 1. HERO SECTION WITH BACKGROUND VIDEO & BACKUP IMAGE */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-[#1F1B1C]">
+      {/* 1. HERO SECTION WITH BACKGROUND VIDEO & HIGH-CONVERSION ACTIONS */}
+      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden bg-[#1F1B1C]">
         
         {/* Background Video */}
         {!videoError && (
@@ -90,7 +123,11 @@ export const Home: React.FC<HomeProps> = ({
             className="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-opacity duration-1000"
             style={{ opacity: videoLoaded ? 0.45 : 0 }}
           >
-            {/* High quality webm/mp4 salon beauty video */}
+            {/* Multiple video sources for maximum device compatibility */}
+            <source
+              src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+              type="video/mp4"
+            />
             <source
               src="https://assets.mixkit.co/videos/preview/mixkit-hairdresser-washing-a-clients-hair-41584-large.mp4"
               type="video/mp4"
@@ -98,7 +135,7 @@ export const Home: React.FC<HomeProps> = ({
           </video>
         )}
 
-        {/* Fallback Background Image if video fails or is loading */}
+        {/* Fallback Background Image */}
         {(!videoLoaded || videoError) && (
           <div
             className="absolute inset-0 bg-cover bg-center transition-opacity duration-700"
@@ -109,12 +146,12 @@ export const Home: React.FC<HomeProps> = ({
           />
         )}
 
-        {/* Elegant Semitransparent Overlay for High Contrast */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1F1B1C] via-[#1F1B1C]/70 to-[#1F1B1C]/80" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(31,27,28,0.6)_100%)]" />
+        {/* Elegant Semitransparent Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1F1B1C] via-[#1F1B1C]/75 to-[#1F1B1C]/80" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(31,27,28,0.7)_100%)]" />
 
         {/* Content Box */}
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-rose-200 text-xs sm:text-sm font-medium uppercase tracking-widest mb-6 animate-pulse">
             <Sparkles className="w-4 h-4 text-amber-300" />
@@ -128,18 +165,39 @@ export const Home: React.FC<HomeProps> = ({
             </span>
           </h1>
 
-          <p className="max-w-2xl mx-auto text-base sm:text-xl text-stone-300 font-light leading-relaxed mb-10">
+          <p className="max-w-2xl mx-auto text-base sm:text-xl text-stone-300 font-light leading-relaxed mb-8">
             {settings.salon_tagline || 'Cabelos luminosos, unhas impecáveis e estética avançada com atendimento exclusivo, produtos premium e equipe altamente qualificada.'}
           </p>
 
-          {/* Call to Actions */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          {/* Video Presentation Banner Button */}
+          <div className="mb-10">
+            <button
+              onClick={() => {
+                const el = document.getElementById('video-presentation-section');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  setVideoModalOpen(true);
+                }
+              }}
+              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/30 text-amber-200 text-xs sm:text-sm font-semibold uppercase tracking-wider backdrop-blur-md transition-all hover:scale-105 shadow-md"
+            >
+              <div className="w-6 h-6 rounded-full bg-amber-400 text-stone-900 flex items-center justify-center font-bold">
+                <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+              </div>
+              Assistir Vídeo de Apresentação do Salão
+            </button>
+          </div>
+
+          {/* Call to Actions - Clear Registration & Login Options */}
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+            
             <button
               onClick={() => {
                 setCurrentTab('booking');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-sm font-semibold uppercase tracking-wider text-white bg-gradient-to-r from-[#985868] via-[#B06B7B] to-[#985868] hover:from-[#844A59] hover:to-[#9B5C6C] shadow-lg shadow-rose-950/40 hover:scale-105 transition-all"
+              className="px-7 py-3.5 rounded-full text-xs sm:text-sm font-semibold uppercase tracking-wider text-white bg-gradient-to-r from-[#985868] via-[#B06B7B] to-[#985868] hover:from-[#844A59] hover:to-[#9B5C6C] shadow-lg shadow-rose-950/40 hover:scale-105 transition-all flex items-center gap-2"
             >
               <Calendar className="w-4 h-4" />
               Agende seu horário
@@ -147,13 +205,24 @@ export const Home: React.FC<HomeProps> = ({
 
             <button
               onClick={() => {
+                setCurrentTab('register');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="px-6 py-3.5 rounded-full text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-900 bg-[#FAF0EE] hover:bg-[#F3E3E0] shadow-md hover:scale-105 transition-all flex items-center gap-2"
+            >
+              <UserPlus className="w-4 h-4 text-[#985868]" />
+              Criar Conta Gratuita
+            </button>
+
+            <button
+              onClick={() => {
                 setCurrentTab('services');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full text-sm font-medium uppercase tracking-wider text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 hover:border-white/50 transition-all"
+              className="px-6 py-3.5 rounded-full text-xs sm:text-sm font-medium uppercase tracking-wider text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 hover:border-white/50 transition-all flex items-center gap-1.5"
             >
               Conheça nossos serviços
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
 
             <button
@@ -161,14 +230,15 @@ export const Home: React.FC<HomeProps> = ({
                 setCurrentTab('login');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full text-sm font-medium text-stone-300 hover:text-white hover:underline transition-colors"
+              className="px-5 py-3.5 rounded-full text-xs sm:text-sm font-medium text-stone-300 hover:text-white hover:underline transition-colors flex items-center gap-1.5"
             >
-              Acessar minha conta
+              <LogIn className="w-3.5 h-3.5" />
+              Já tem conta? Entrar
             </button>
           </div>
 
           {/* Quick Metrics Bar */}
-          <div className="mt-16 pt-8 border-t border-white/15 grid grid-cols-2 md:grid-cols-4 gap-6 text-white text-center">
+          <div className="mt-14 pt-8 border-t border-white/15 grid grid-cols-2 md:grid-cols-4 gap-6 text-white text-center">
             <div>
               <p className="font-serif text-3xl font-bold text-amber-200">100%</p>
               <p className="text-xs text-stone-400 mt-1 uppercase tracking-wider">Produtos Originais</p>
@@ -190,7 +260,116 @@ export const Home: React.FC<HomeProps> = ({
         </div>
       </section>
 
-      {/* 2. DIFFERENTIALS / DIFERENCIAIS */}
+      {/* 2. DEDICATED VIDEO PRESENTATION SECTION */}
+      <section id="video-presentation-section" className="py-20 bg-[#1A1718] text-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <span className="text-xs font-semibold uppercase tracking-widest text-[#C78292]">
+              Tour Visual & Demonstração
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold mt-2">
+              Conheça a Experiência Cris_Beauty em Vídeo
+            </h2>
+            <p className="text-sm text-stone-400 mt-3 leading-relaxed">
+              Veja de perto nosso espaço exclusivo, nossos protocolos de biossegurança e o cuidado refinado que dedicamos a cada atendimento.
+            </p>
+          </div>
+
+          {/* Interactive Player Box */}
+          <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-stone-800 bg-stone-900 aspect-16/9 max-w-4xl mx-auto group">
+            
+            <video
+              ref={presentationVideoRef}
+              playsInline
+              loop
+              poster="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1600&q=80"
+              className="w-full h-full object-cover"
+              onClick={togglePlayPresentation}
+            >
+              <source
+                src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+                type="video/mp4"
+              />
+            </video>
+
+            {/* Overlay Play button when paused */}
+            {!isPlaying && (
+              <div
+                onClick={togglePlayPresentation}
+                className="absolute inset-0 bg-black/40 backdrop-blur-2xs flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-black/30"
+              >
+                <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#985868] to-[#C78292] text-white flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
+                  <Play className="w-8 h-8 fill-current ml-1" />
+                </div>
+                <p className="mt-4 text-sm font-semibold tracking-wide text-white uppercase">
+                  Clique para assistir ao vídeo
+                </p>
+                <span className="text-xs text-stone-300 mt-1">Alta Definição • Tour Cris_Beauty</span>
+              </div>
+            )}
+
+            {/* Video Controls Bar */}
+            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={togglePlayPresentation}
+                  className="p-2 rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors"
+                  title={isPlaying ? 'Pausar' : 'Reproduzir'}
+                >
+                  {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 fill-current" />}
+                </button>
+
+                <button
+                  onClick={toggleMutePresentation}
+                  className="p-2 rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors"
+                  title={isMuted ? 'Ativar Áudio' : 'Desativar Áudio'}
+                >
+                  {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                </button>
+
+                <span className="text-xs text-stone-300 font-medium hidden sm:inline">
+                  Cris_Beauty — Vídeo de Apresentação
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    if (presentationVideoRef.current?.requestFullscreen) {
+                      presentationVideoRef.current.requestFullscreen();
+                    }
+                  }}
+                  className="p-2 rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors"
+                  title="Tela Cheia"
+                >
+                  <Maximize2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Highlights below video */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto mt-8 text-center text-xs text-stone-400">
+            <div className="bg-[#242021] p-4 rounded-2xl border border-stone-800">
+              <p className="font-semibold text-white text-sm mb-1">Ambiente Planejado</p>
+              Salas individuais para estética, bancadas de maquiagem iluminadas e lavatórios massageadores.
+            </div>
+            <div className="bg-[#242021] p-4 rounded-2xl border border-stone-800">
+              <p className="font-semibold text-white text-sm mb-1">Biossegurança e Autoclave</p>
+              Instrumentos de manicure e estética esterilizados em autoclave com embalagens seladas.
+            </div>
+            <div className="bg-[#242021] p-4 rounded-2xl border border-stone-800">
+              <p className="font-semibold text-white text-sm mb-1">Consultoria de Visagismo</p>
+              Avaliação de formato de rosto, tons de pele e estilo pessoal antes de cada transformação.
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* 3. DIFFERENTIALS / DIFERENCIAIS */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
@@ -249,7 +428,7 @@ export const Home: React.FC<HomeProps> = ({
         </div>
       </section>
 
-      {/* 3. FEATURED SERVICES */}
+      {/* 4. FEATURED SERVICES */}
       <section className="py-20 bg-[#FAF7F5] border-t border-[#EADBD7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
@@ -328,7 +507,7 @@ export const Home: React.FC<HomeProps> = ({
         </div>
       </section>
 
-      {/* 4. VISUAL GALLERY */}
+      {/* 5. VISUAL GALLERY */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
@@ -366,94 +545,6 @@ export const Home: React.FC<HomeProps> = ({
         </div>
       </section>
 
-      {/* 5. DEMO TESTIMONIALS (Transparently identified as demonstration) */}
-      <section className="py-20 bg-[#FAF7F5] border-t border-[#EADBD7]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium mb-3">
-              <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-              Depoimentos de Demonstração
-            </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900">
-              O que dizem sobre nossa experiência
-            </h2>
-            <p className="text-xs text-stone-500 mt-2">
-              (Avaliações de exemplo representativas da satisfação de nossos clientes)
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-8 rounded-2xl bg-white border border-[#EADBD7] shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="flex text-amber-400 gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400" />
-                  ))}
-                </div>
-                <p className="text-stone-700 text-sm leading-relaxed italic">
-                  "O atendimento do Cris_Beauty superou todas as minhas expectativas. Fiz coloração e corte, e o resultado ficou com um brilho e caimento perfeitos!"
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-stone-100 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#EFE3E0] text-[#985868] flex items-center justify-center font-serif font-bold">
-                  MC
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-stone-900">Mariana Castro</h4>
-                  <p className="text-xs text-stone-500">Cliente de Cabelo & Estética</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-8 rounded-2xl bg-white border border-[#EADBD7] shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="flex text-amber-400 gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400" />
-                  ))}
-                </div>
-                <p className="text-stone-700 text-sm leading-relaxed italic">
-                  "Ambiente impecável, super limpo e aconchegante. O agendamento online facilita muito a minha rotina, sem filas e com pontualidade."
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-stone-100 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#EFE3E0] text-[#985868] flex items-center justify-center font-serif font-bold">
-                  BF
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-stone-900">Beatriz Fernandes</h4>
-                  <p className="text-xs text-stone-500">Cliente de Manicure & Maquiagem</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-8 rounded-2xl bg-white border border-[#EADBD7] shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="flex text-amber-400 gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400" />
-                  ))}
-                </div>
-                <p className="text-stone-700 text-sm leading-relaxed italic">
-                  "A limpeza de pele e a hidratação capilar salvaram meu visual antes do meu casamento. Profissionais atenciosas e delicadas. Recomendo de olhos fechados!"
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-stone-100 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#EFE3E0] text-[#985868] flex items-center justify-center font-serif font-bold">
-                  JS
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-stone-900">Juliana Silveira</h4>
-                  <p className="text-xs text-stone-500">Cliente Noiva</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
       {/* 6. CALL TO ACTION BANNER */}
       <section className="py-16 bg-gradient-to-r from-[#985868] via-[#B06B7B] to-[#985868] text-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -462,15 +553,25 @@ export const Home: React.FC<HomeProps> = ({
             Pronta para viver uma experiência exclusiva?
           </h2>
           <p className="text-rose-100 max-w-xl mx-auto text-base mb-8">
-            Selecione seus serviços favoritos, escolha o dia e horário ideais e garanta seu momento de autocuidado.
+            Crie sua conta ou selecione seus serviços favoritos para garantir seu momento de autocuidado.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              onClick={() => {
+                setCurrentTab('register');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="px-8 py-3.5 rounded-full bg-white text-[#985868] font-bold text-sm uppercase tracking-wider shadow-lg hover:bg-stone-50 hover:scale-105 transition-all flex items-center justify-center gap-2"
+            >
+              <UserPlus className="w-4 h-4" />
+              Criar Conta Gratuita
+            </button>
             <button
               onClick={() => {
                 setCurrentTab('booking');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="px-8 py-3.5 rounded-full bg-white text-[#985868] font-bold text-sm uppercase tracking-wider shadow-lg hover:bg-stone-50 hover:scale-105 transition-all"
+              className="px-8 py-3.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/40 text-white font-semibold text-sm uppercase tracking-wider transition-all"
             >
               Agendar Agora
             </button>
@@ -481,7 +582,7 @@ export const Home: React.FC<HomeProps> = ({
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-[#25D366] text-white font-semibold text-sm hover:bg-[#1EBE5D] transition-colors"
             >
               <MessageCircle className="w-4 h-4" />
-              Tirar Dúvidas via WhatsApp
+              WhatsApp
             </a>
           </div>
         </div>

@@ -167,13 +167,21 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                 )}
               </div>
             ) : (
-              <button
-                onClick={() => handleNavClick('login')}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[#D9C4BE] text-xs font-semibold uppercase tracking-wider text-stone-700 hover:text-stone-900 hover:bg-[#F5EBE8] transition-colors"
-              >
-                <UserIcon className="w-3.5 h-3.5 text-stone-600" />
-                Acessar minha conta
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleNavClick('login')}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[#D9C4BE] text-xs font-semibold uppercase tracking-wider text-stone-700 hover:text-stone-900 hover:bg-[#F5EBE8] transition-colors"
+                >
+                  <UserIcon className="w-3.5 h-3.5 text-stone-600" />
+                  Entrar
+                </button>
+                <button
+                  onClick={() => handleNavClick('register')}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#FAF0EE] border border-[#C78292] text-xs font-semibold uppercase tracking-wider text-[#985868] hover:bg-[#985868] hover:text-white transition-all shadow-2xs"
+                >
+                  Cadastrar
+                </button>
+              </div>
             )}
           </div>
 

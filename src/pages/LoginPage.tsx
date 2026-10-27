@@ -196,15 +196,22 @@ export const LoginPage: React.FC<LoginPageProps> = ({ setCurrentTab, onLoginSucc
           Entrar com Google
         </button>
 
-        {/* Link to Register */}
-        <div className="mt-8 pt-6 border-t border-stone-100 text-center text-xs text-stone-500">
-          Ainda não possui uma conta?{' '}
-          <button
-            onClick={() => setCurrentTab('register')}
-            className="text-[#985868] font-bold hover:underline"
-          >
-            Cadastre-se gratuitamente
-          </button>
+        {/* Prominent Call to Action for Visitors without an account */}
+        <div className="mt-8 pt-6 border-t border-stone-200">
+          <div className="bg-[#FAF0EE] border border-[#E7C9CF] rounded-2xl p-4 text-center">
+            <p className="text-xs font-bold text-stone-800">
+              Não tem uma conta no aplicativo?
+            </p>
+            <p className="text-[11px] text-stone-600 mt-1 mb-3">
+              Crie seu cadastro gratuito em menos de 1 minuto para agendar serviços e acompanhar seus horários.
+            </p>
+            <button
+              onClick={() => setCurrentTab('register')}
+              className="w-full py-2.5 rounded-full text-xs font-bold uppercase tracking-wider text-white bg-[#985868] hover:bg-[#844A59] transition-all shadow-xs"
+            >
+              Criar Conta Gratuita
+            </button>
+          </div>
         </div>
 
       </div>
