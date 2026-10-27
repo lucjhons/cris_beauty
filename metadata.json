@@ -1,0 +1,6 @@
+{
+  "name": "Cris_Beauty — Sistema Profissional de Salão de Beleza",
+  "description": "Sistema completo para salão de beleza premium com agendamento online de múltiplos serviços, verificação de horários em tempo real, painel administrativo protegido e histórico exclusivo de clientes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
