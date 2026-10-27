@@ -150,7 +150,7 @@ export const PixelBug: React.FC = () => {
 
   const onBounce = useCallback((id: number) => {
     setBugs((prev) => {
-      if (prev.length > 250) return prev;
+      if (prev.length >= 50) return prev;
       const source = prev.find((b) => b.id === id);
       if (!source) return prev;
 
