@@ -13,6 +13,7 @@ import { AdminDashboard } from './pages/AdminDashboard.tsx';
 import { AboutAndContactPage } from './pages/AboutAndContactPage.tsx';
 import { Service, SalonSettings } from './types/index.ts';
 import { MessageCircle } from 'lucide-react';
+import { PixelBug } from './components/PixelBug.tsx';
 
 function MainApp() {
   const { user } = useAuth();
@@ -194,6 +195,8 @@ function MainApp() {
 
       {/* Footer */}
       <Footer settings={settings} setCurrentTab={setCurrentTab} />
+
+      <PixelBug />
     </div>
   );
 }
