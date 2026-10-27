@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 const MEMES = [
   {
@@ -25,24 +25,41 @@ const MEMES = [
     name: 'Trollface',
     img: 'https://i.imgflip.com/1bim.jpg',
   },
+  {
+    name: 'Big Chungus',
+    img: 'https://i.imgflip.com/3si4.jpg',
+  },
+  {
+    name: 'Wojak Crying',
+    img: 'https://i.imgflip.com/1bh8.jpg',
+  },
+  {
+    name: 'Sad Keanu',
+    img: 'https://i.imgflip.com/3ooze.jpg',
+  },
 ];
 
-export const PixelBug: React.FC = () => {
+interface PixelBugInstanceProps {
+  index: number;
+}
+
+const PixelBugInstance: React.FC<PixelBugInstanceProps> = ({ index }) => {
   const bugRef = useRef<HTMLDivElement>(null);
-  const [meme] = useState(() => MEMES[Math.floor(Math.random() * MEMES.length)]);
+  const meme = MEMES[index % MEMES.length];
+  const size = 76 + index * 6;
 
   useEffect(() => {
     const bug = bugRef.current;
     if (!bug) return;
 
-    let x = Math.random() * (window.innerWidth - 80);
-    let y = Math.random() * (window.innerHeight - 100);
-    let vx = (Math.random() > 0.5 ? 1 : -1) * (2.2 + Math.random() * 1.4);
-    let vy = (Math.random() > 0.5 ? 1 : -1) * (1.8 + Math.random() * 1.2);
+    let x = Math.random() * (window.innerWidth - size);
+    let y = Math.random() * (window.innerHeight - size - 30);
+    let vx = (Math.random() > 0.5 ? 1 : -1) * (2.6 + Math.random() * 2.2 + index * 0.4);
+    let vy = (Math.random() > 0.5 ? 1 : -1) * (2.0 + Math.random() * 1.8 + index * 0.3);
 
     const update = () => {
-      const maxX = window.innerWidth - 80;
-      const maxY = window.innerHeight - 100;
+      const maxX = window.innerWidth - size;
+      const maxY = window.innerHeight - size - 30;
 
       x += vx;
       y += vy;
@@ -63,7 +80,7 @@ export const PixelBug: React.FC = () => {
         vy *= -1;
       }
 
-      bug.style.transform = `translate(${x}px, ${y}px) scaleX(${vx > 0 ? -1 : 1})`;
+      bug.style.transform = `translate(${x}px, ${y}px) scaleX(${vx > 0 ? 1 : -1})`;
 
       requestAnimationFrame(update);
     };
@@ -71,15 +88,15 @@ export const PixelBug: React.FC = () => {
     update();
 
     const handleResize = () => {
-      const maxX = window.innerWidth - 80;
-      const maxY = window.innerHeight - 100;
+      const maxX = window.innerWidth - size;
+      const maxY = window.innerHeight - size - 30;
       if (x > maxX) x = maxX;
       if (y > maxY) y = maxY;
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [index, size]);
 
   return (
     <div
@@ -89,10 +106,13 @@ export const PixelBug: React.FC = () => {
       aria-hidden="true"
     >
       <div className="relative flex flex-col items-center">
-        <div className="mb-1 px-2 py-0.5 rounded bg-black/80 text-white text-[10px] font-bold uppercase tracking-widest whitespace-nowrap shadow-lg">
+        <div className="mb-1 px-1.5 py-0.5 rounded bg-black/90 text-yellow-300 text-[9px] font-black uppercase tracking-[0.2em] whitespace-nowrap shadow-lg border border-yellow-400/60">
           {meme.name}
         </div>
-        <div className="w-20 h-20 rounded-lg overflow-hidden border-2 border-yellow-400 shadow-[0_0_20px_rgba(255,215,0,0.8)] bg-black">
+        <div
+          className="rounded-lg overflow-hidden border-2 border-yellow-400 shadow-[0_0_25px_rgba(255,215,0,0.9)] bg-black"
+          style={{ width: size, height: size }}
+        >
           <img
             src={meme.img}
             alt={meme.name}
@@ -104,3 +124,15 @@ export const PixelBug: React.FC = () => {
     </div>
   );
 };
+
+export const PixelBug: React.FC = () => {
+  return (
+    <>
+      <PixelBugInstance index={0} />
+      <PixelBugInstance index={1} />
+      <PixelBugInstance index={2} />
+      <PixelBugInstance index={3} />
+    </>
+  );
+};
+
